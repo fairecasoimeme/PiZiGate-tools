@@ -152,7 +152,7 @@ int main(int argc, char ** argv) {
 		{
 			verifFiles=1;
 			color("33;1");
-			printf("Warning !!! you must modify /boot/config.txt and /boot/cmdline.txt\n");
+			printf("Warning !!! you must modify /boot/config.txt\n");
 			color("0");
 		}else{
 			verifFiles=0;
@@ -163,32 +163,32 @@ int main(int argc, char ** argv) {
 		
 	}
 	fclose(fp);
+	printf("Verifying /boot/cmdline.txt ...\n");
+	sprintf(command,"cat /boot/cmdline.txt | grep console=serial0,115200 > cmdlineTest.tmp");
+	system(command);
+	fp = fopen("cmdlineTest.tmp", "r"); 
+	int i=0;
+	while(fgetc(fp) != EOF)
+	{
+		i=1;
+		break;
+	}
+	fclose(fp);
+	if (i>0)
+	{
+		color("31;1");
+		printf("You have to delete 'console=serial0,115200' in /boot/cmdline.txt \n");
+		color("0");
+		exit(0);
+	}else{
+		color("32;1");
+		printf("+ /boot/cmdline.txt seems to be OK\n");
+		color("0");
+	}
 	
 	if (verifFiles)
 	{
-		printf("Verifying /boot/cmdline.txt ...\n");
-		sprintf(command,"cat /boot/cmdline.txt | grep console=serial0,115200 > cmdlineTest.tmp");
-		system(command);
-		fp = fopen("cmdlineTest.tmp", "r"); 
-		int i=0;
-		while(fgetc(fp) != EOF)
-		{
-			i=1;
-			break;
-		}
-		fclose(fp);
-		if (i>0)
-		{
-			color("31;1");
-			printf("You have to delete 'console=serial0,115200' in /boot/cmdline.txt \n");
-			color("0");
-			exit(0);
-		}else{
-			color("32;1");
-			printf("+ /boot/cmdline.txt seems to be OK\n");
-			color("0");
-		}
-		
+			
 		printf("Verifying /boot/config.txt ...\n");
 		sprintf(command,"grep -v '#' /boot/config.txt | grep dtoverlay=pi3-disable-bt > configTest1.tmp");
 		system(command);
@@ -245,7 +245,7 @@ int main(int argc, char ** argv) {
 	system(command);
 
 	fp = fopen("output.tmp", "r");
-	int i=0;
+	i=0;
 	while(fgetc(fp) != EOF)
 	{
 		i=1;
