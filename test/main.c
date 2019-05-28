@@ -22,7 +22,7 @@
 30 Noir |31 Rouge | 32 Vert | 33 Jaune | 34 Bleu| 35 Magenta | 36 Cyan | 37 Blanc*/
 #endif
 
-const float VERSION=1.1;
+const float VERSION=1.2;
 char *revisionTabs[] ={"9000c1","a02082","a020a0","a020d3","a22082","a220a0","a32082","a52082","a22083","a02100"};
 
 char serialPort[50];
