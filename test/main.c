@@ -22,7 +22,7 @@
 30 Noir |31 Rouge | 32 Vert | 33 Jaune | 34 Bleu| 35 Magenta | 36 Cyan | 37 Blanc*/
 #endif
 
-const float VERSION=1.2;
+const float VERSION=1.3;
 char *revisionTabs[] ={"9000c1","a02082","a020a0","a020d3","a22082","a220a0","a32082","a52082","a22083","a02100"};
 
 char serialPort[50];
@@ -155,62 +155,56 @@ int main(int argc, char ** argv) {
 			printf("Warning !!! you must modify /boot/config.txt\n");
 			color("0");
 		}else{
-			verifFiles=0;
-			color("32;1");
-			printf("All it's OK\n");
-			color("0");
+			if((strcmp(trim(tmp),"a03111")==0) || (strcmp(trim(tmp),"b03111")==0) || (strcmp(trim(tmp),"c03111")==0))
+			{
+				verifFiles=2;
+				color("32;1");
+				printf("+ RPI 4 detected\n");
+				color("0");
+			}else{
+				verifFiles=0;
+				color("32;1");
+				printf("All it's OK\n");
+				color("0");
+			}
 		}
 		
 	}
 	fclose(fp);
-	printf("Verifying /boot/cmdline.txt ...\n");
-	sprintf(command,"cat /boot/cmdline.txt | grep console=serial0,115200 > cmdlineTest.tmp");
-	system(command);
-	fp = fopen("cmdlineTest.tmp", "r"); 
 	int i=0;
-	while(fgetc(fp) != EOF)
-	{
-		i=1;
-		break;
-	}
-	fclose(fp);
-	if (i>0)
-	{
-		color("31;1");
-		printf("You have to delete 'console=serial0,115200' in /boot/cmdline.txt \n");
-		color("0");
-		exit(0);
-	}else{
-		color("32;1");
-		printf("+ /boot/cmdline.txt seems to be OK\n");
-		color("0");
-	}
 	
-	if (verifFiles)
-	{
-			
-		printf("Verifying /boot/config.txt ...\n");
-		sprintf(command,"grep -v '#' /boot/config.txt | grep dtoverlay=pi3-disable-bt > configTest1.tmp");
+	if (verifFiles <2)
+	{	
+		printf("Verifying /boot/cmdline.txt ...\n");
+		sprintf(command,"cat /boot/cmdline.txt | grep console=serial0,115200 > cmdlineTest.tmp");
 		system(command);
-		fp = fopen("configTest1.tmp", "r"); 
-		i=0;
+		fp = fopen("cmdlineTest.tmp", "r"); 
+		
 		while(fgetc(fp) != EOF)
 		{
 			i=1;
 			break;
 		}
 		fclose(fp);
-		if (i==0)
+		if (i>0)
 		{
 			color("31;1");
-			printf("You have to add dtoverlay=pi3-disable-bt in /boot/config.txt \n");
+			printf("You have to delete 'console=serial0,115200' in /boot/cmdline.txt \n");
 			color("0");
 			exit(0);
 		}else{
-			
-			sprintf(command,"grep -v '#' /boot/config.txt | grep enable_uart=1 > configTest2.tmp");
+			color("32;1");
+			printf("+ /boot/cmdline.txt seems to be OK\n");
+			color("0");
+		}
+		
+		if (verifFiles)
+		{
+				
+			printf("Verifying /boot/config.txt ...\n");
+			sprintf(command,"grep -v '#' /boot/config.txt | grep dtoverlay=pi3-disable-bt > configTest1.tmp");
 			system(command);
-			fp = fopen("configTest2.tmp", "r"); 
+			fp = fopen("configTest1.tmp", "r"); 
 			i=0;
 			while(fgetc(fp) != EOF)
 			{
@@ -221,24 +215,91 @@ int main(int argc, char ** argv) {
 			if (i==0)
 			{
 				color("31;1");
-				printf("You have to add enable_uart=1 in /boot/config.txt \n");
+				printf("You have to add dtoverlay=pi3-disable-bt in /boot/config.txt \n");
 				color("0");
 				exit(0);
+			}else{
+				
+				sprintf(command,"grep -v '#' /boot/config.txt | grep enable_uart=1 > configTest2.tmp");
+				system(command);
+				fp = fopen("configTest2.tmp", "r"); 
+				i=0;
+				while(fgetc(fp) != EOF)
+				{
+					i=1;
+					break;
+				}
+				fclose(fp);
+				if (i==0)
+				{
+					color("31;1");
+					printf("You have to add enable_uart=1 in /boot/config.txt \n");
+					color("0");
+					exit(0);
+				}
+				
+				
+				color("32;1");
+				printf("+ /boot/config.txt seems to be OK\n");
+				color("0");
+				
+				color("33;1");
+				printf("Warning !!! if it's not the case, you have to execute the following commands : \n");
+				printf("sudo systemctl disable hciuart\n");
+				printf("sudo usermod -aG gpio pi\n");
+				printf("then reboot the PI\n");
+				color("0");		
 			}
-			
-			
-			color("32;1");
-			printf("+ /boot/config.txt seems to be OK\n");
-			color("0");
-			
-			color("33;1");
-			printf("Warning !!! if it's not the case, you have to execute the following commands : \n");
-			printf("sudo systemctl disable hciuart\n");
-			printf("sudo usermod -aG gpio pi\n");
-			printf("then reboot the PI\n");
-			color("0");		
 		}
+	}else{
+		printf("Verifying /boot/cmdline.txt ...\n");
+		sprintf(command,"cat /boot/cmdline.txt | grep console=serial0,115200 > cmdlineTest.tmp");
+		system(command);
+		fp = fopen("cmdlineTest.tmp", "r"); 
+		
+		while(fgetc(fp) != EOF)
+		{
+			i=1;
+			break;
+		}
+		fclose(fp);
+		if (i>0)
+		{
+			color("31;1");
+			printf("You have to delete 'console=serial0,115200' in /boot/cmdline.txt \n");
+			color("0");
+			exit(0);
+		}else{
+			color("32;1");
+			printf("+ /boot/cmdline.txt seems to be OK\n");
+			color("0");
+		}
+		printf("Verifying /boot/cmdline.txt ...\n");
+		sprintf(command,"grep -v '#' /boot/config.txt | grep enable_uart=1 > configTest2.tmp");
+		system(command);
+		fp = fopen("configTest2.tmp", "r"); 
+		i=0;
+		while(fgetc(fp) != EOF)
+		{
+			i=1;
+			break;
+		}
+		fclose(fp);
+		if (i==0)
+		{
+			color("31;1");
+			printf("You have to add enable_uart=1 in /boot/config.txt \n");
+			color("0");
+			exit(0);
+		}
+		
+		
+		color("32;1");
+		printf("+ /boot/config.txt seems to be OK\n");
+		color("0");
 	}
+	
+	
 	
 	printf("Searching %s...\n",  serialPort);
 	sprintf(command,"lsof |grep %s > output.tmp",serialPort);
