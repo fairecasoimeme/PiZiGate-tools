@@ -1,3 +1,6 @@
+## VERSION 1.2
+* Manage RPI4
+
 ## VERSION 1.1
 
 * Test the RPI version (3B, 3B+, Pi0W) and give some new advices to configure your hardware properly
